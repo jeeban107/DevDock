@@ -1,0 +1,132 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  background-color: #252746;
+  color: white;
+  overflow-x: hidden;
+}
+
+html {
+  overflow-x: hidden;
+}
+
+.inputBox {
+  background-color: #3f4273;
+  width: 100%;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.inputBox input {
+  flex: 1;
+  padding: 10px;
+  outline: none;
+  border: none;
+  background-color: transparent;
+  color: #fff;
+  font-size: 16px;
+}
+
+.btnBlue {
+  background-color: #7e4bde;
+  /* background-color: #222124; */
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-top: 20px;
+  text-align: center;
+}
+
+.btnBlue:hover {
+  background-color: #6238b1;
+}
+
+.listCard {
+  background: rgba(63, 66, 115, 0.25);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.listCard:hover {
+  background: rgba(83, 86, 141, 0.25);
+}
+
+.gridCard {
+  background: rgba(63, 66, 115, 0.25);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.gridCard:hover {
+  background: rgba(83, 86, 141, 0.25);
+}
+
+.grid {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 10px;
+}
+
+.subNav {
+  background: #1e1f38;
+
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+}
+
+.lightmode {
+  background-color: #ffff !important;
+  color: #000 !important;
+}
+
+.lightmode .tabs {
+  background-color: #f7f7f7;
+}
+
+.lightmode .tabs .tab {
+  background-color: #c2c1c1;
+  color: #000;
+  margin-left: 5px;
+}
+
+.lightmode .btn {
+  background-color: #c2c1c1;
+  color: #000;
+}
+
+.mainModel {
+  background: rgb(63, 66, 115);
+  box-shadow: 0 8px 32px 0 rgba(34, 36, 63, 0.37);
+  /* backdrop-filter: blur(4px); */
+  /* -webkit-backdrop-filter: blur(4px); */
+  border-radius: 10px;
+  border: 1px solid rgba(113, 112, 224, 0.18);
+}
+
+.createModel {
+  background: rgb(63, 66, 115);
+  box-shadow: 0 8px 32px 0 rgba(34, 36, 63, 0.37);
+  /* backdrop-filter: blur(4px); */
+  /* -webkit-backdrop-filter: blur(4px); */
+  border-radius: 10px;
+  border: 1px solid rgba(113, 112, 224, 0.18);
+}
