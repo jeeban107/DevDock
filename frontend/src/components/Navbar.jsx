@@ -1,12 +1,36 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import logo from "../images/DDlogo.png";
 import Avatar from "react-avatar";
 import { MdLightMode } from "react-icons/md";
 import { BsGridFill } from "react-icons/bs";
-import { toggleClass } from "../helper";
+import { api_base_url, toggleClass } from "../helper";
 
 const Navbar = () => {
+  const [data, setData] = useState(null);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    fetch(api_base_url + "/getUserDetails", {
+      mode: "cors",
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userId: localStorage.getItem("userId"),
+      }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          setData(data.user);
+        } else {
+          setError(data.message);
+        }
+      });
+  }, []);
+
   return (
     <>
       <div className="navbar flex  items-center justify-between px-[100px] h-[70px] bg-[#482A81] ">
@@ -26,7 +50,7 @@ const Navbar = () => {
             onClick={() => {
               toggleClass(".dropDownNavbar", "hidden");
             }}
-            name="Jeeban Behera"
+            name={data ? data.name : ""}
             size="40"
             round="50%"
             className="cursor-pointer ml-2"

@@ -3,25 +3,15 @@ import EditorNavbar from "../components/EditorNavbar";
 import Editor from "@monaco-editor/react";
 import { MdLightMode } from "react-icons/md";
 import { FaExpandAlt } from "react-icons/fa";
+import { api_base_url } from "../helper";
+import { useParams } from "react-router-dom";
 
 const Editior = () => {
-  const [tab, setTab] = useState("html");
+  const { projectID } = useParams(); // ✅ Fixed: moved useParams to top-level
 
+  const [tab, setTab] = useState("html");
   const [isLightMode, setIsLightMode] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
-
-  const changeTheme = () => {
-    if (isLightMode) {
-      document.querySelector(".EditorNavbar").style.background = "#482A81";
-      document.body.classList.remove("lightmode");
-      setIsLightMode(false);
-    } else {
-      document.querySelector(".EditorNavbar").style.background = "#482A81";
-      document.querySelector(".EditorNavbar").style.color = "#f4f4f4";
-      document.body.classList.add("lightmode");
-      setIsLightMode(true);
-    }
-  };
 
   const [htmlCode, setHtmlCode] = useState("<h1>Hello World</h1>");
   const [cssCode, setCssCode] = useState("body { background-color: #f4f4f4; }");
@@ -38,6 +28,19 @@ int main() {
   printf("Hello, C!");
   return 0;
 }`);
+
+  const changeTheme = () => {
+    if (isLightMode) {
+      document.querySelector(".EditorNavbar").style.background = "#482A81";
+      document.body.classList.remove("lightmode");
+      setIsLightMode(false);
+    } else {
+      document.querySelector(".EditorNavbar").style.background = "#482A81";
+      document.querySelector(".EditorNavbar").style.color = "#f4f4f4";
+      document.body.classList.add("lightmode");
+      setIsLightMode(true);
+    }
+  };
 
   const run = async () => {
     const iframe = document.getElementById("iframe");
@@ -93,15 +96,80 @@ int main() {
   };
 
   useEffect(() => {
-    run(); // Run default tab's code on page load
+    run(); // Run code on tab switch
   }, [tab]);
+
+  useEffect(() => {
+    fetch(api_base_url + "/getproject", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userId: localStorage.getItem("userId"),
+        projId: projectID,
+      }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setHtmlCode(data.project.htmlCode);
+        setCssCode(data.project.cssCode);
+        setJsCode(data.project.jsCode);
+      })
+      .catch((err) => {
+        console.error("Failed to fetch project data:", err);
+      });
+  }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.ctrlKey && event.key === "s") {
+        event.preventDefault(); // Prevent the default save file dialog
+
+        // Ensure that projectID and code states are updated and passed to the fetch request
+        fetch(api_base_url + "/updateProject", {
+          mode: "cors",
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            userId: localStorage.getItem("userId"),
+            projId: projectID, // Make sure projectID is correct
+            htmlCode: htmlCode, // Passing the current HTML code
+            cssCode: cssCode, // Passing the current CSS code
+            jsCode: jsCode, // Passing the current JS code
+          }),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.success) {
+              alert("Project saved successfully");
+            } else {
+              alert("Something went wrong");
+            }
+          })
+          .catch((err) => {
+            console.error("Error saving project:", err);
+            alert("Failed to save project. Please try again.");
+          });
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    // Clean up the event listener on component unmount
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [projectID, htmlCode, cssCode, jsCode]);
 
   return (
     <>
       <EditorNavbar isLightMode={isLightMode} />
       <div className="flex">
         <div className={`left ${isExpanded ? "w-full" : "w-1/2"}`}>
-          <div className=" tabs flex items-center justify-between gap-2 w-full h-[60px] px-[40px]">
+          <div className="tabs flex items-center justify-between gap-2 w-full h-[60px] px-[40px]">
             <div className="tabs flex items-center gap-2">
               {["html", "css", "js", "java", "python", "c"].map((language) => (
                 <div
@@ -146,6 +214,8 @@ int main() {
                   break;
                 case "c":
                   setCCode(e);
+                  break;
+                default:
                   break;
               }
               run();

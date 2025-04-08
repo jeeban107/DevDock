@@ -1,17 +1,53 @@
 import React, { useState } from "react";
 import image from "../images/code.png";
 import deleteImg from "../images/delete.png";
-const ListCard = () => {
+import { api_base_url } from "../helper";
+import { useNavigate } from "react-router-dom";
+
+const ListCard = ({ item }) => {
+  const navigate = useNavigate();
+
   const [isDeleteModelShow, setIsDeleteModelShow] = useState(false);
+
+  const deleteProj = (id) => {
+    fetch(api_base_url + "/deleteProject", {
+      mode: "cors",
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        progId: id,
+        userId: localStorage.getItem("userId"),
+      }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          setIsDeleteModelShow(false);
+          window.location.reload();
+        } else {
+          alert(data.message);
+          setIsDeleteModelShow(false);
+        }
+      });
+  };
 
   return (
     <>
       <div className="listCard mb-2 w-[full] flex items-center justify-between  p-[10px] bg-[#252746] cursor-pointer rounded-lg hover:bg-[]">
-        <div className="flex items-center gap-2">
+        <div
+          onClick={() => {
+            navigate(`/editor/${item._id}`);
+          }}
+          className="flex items-center gap-2"
+        >
           <img className="w-[80px] " src={image} alt="" />
           <div>
-            <h3 className="text-[20px] ">My First project Project </h3>
-            <p className="text-[grey]  text-[14px]">Created in 4 mon 2025</p>
+            <h3 className="text-[20px] ">{item.title} </h3>
+            <p className="text-[grey]  text-[14px]">
+              Created in {new Date(item.date).toDateString()}
+            </p>
           </div>
         </div>
         <div>
@@ -34,7 +70,12 @@ const ListCard = () => {
               this project ?
             </h3>
             <div className="flex w-full mt-5 items-center gap-[10px]">
-              <button className="p-[10px] rounded-lg bg-[#FF4343] text-white cursor-pointer min-w-[49%]">
+              <button
+                onClick={() => {
+                  deleteProj(item._id);
+                }}
+                className="p-[10px] rounded-lg bg-[#FF4343] text-white cursor-pointer min-w-[49%]"
+              >
                 Delete
               </button>
               <button

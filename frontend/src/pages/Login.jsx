@@ -3,13 +3,39 @@ import logo from "../images/DDlogo.png";
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import image from "../images/SImg.png";
+import { api_base_url } from "../helper";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [pwd, setPwd] = useState("");
+  const [error, setError] = useState("");
+
+  const navigate = useNavigate();
 
   const submitForm = (e) => {
     e.preventDefault();
+    fetch(api_base_url + "/login", {
+      mode: "cors",
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email: email,
+        password: pwd,
+      }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success === true) {
+          localStorage.setItem("token", data.token);
+          localStorage.setItem("isLoggedIn", true);
+          localStorage.setItem("userId", data.userId);
+          navigate("/");
+        } else {
+          setError(data.message);
+        }
+      });
   };
 
   return (
@@ -46,6 +72,9 @@ const Login = () => {
                 SignUp
               </Link>{" "}
             </p>
+
+            <p className="text-red-500 text-[14px] my-2">{error}</p>
+
             <button className="btnBlue w-full mt-[20px] ">Login</button>
           </form>
         </div>
