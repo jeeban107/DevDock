@@ -1,6 +1,9 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap");
+
 * {
   margin: 0;
   padding: 0;
+  font-family: "Poppins", sans-serif;
 }
 
 body {
@@ -49,8 +52,29 @@ html {
   text-align: center;
 }
 
+.btnRed {
+  background-color: #7e4bde;
+  /* background-color: #222124; */
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  text-align: center;
+}
+
 .btnBlue:hover {
   background-color: #6238b1;
+}
+
+.ptext {
+  color: #dde2fa;
+}
+
+.htext {
+  font-weight: 600;
+  font-size: 1.3rem;
 }
 
 .listCard {
@@ -129,4 +153,25 @@ html {
   /* -webkit-backdrop-filter: blur(4px); */
   border-radius: 10px;
   border: 1px solid rgba(113, 112, 224, 0.18);
+}
+
+/* Hide scrollbar */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Optional: Custom Scrollbar for Webkit */
+.custom-scroll::-webkit-scrollbar {
+  height: 6px;
+}
+.custom-scroll::-webkit-scrollbar-thumb {
+  background: #7e4bde;
+  border-radius: 10px;
+}
+.custom-scroll::-webkit-scrollbar-track {
+  background: #1e1f38;
 }

@@ -1,14 +1,17 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import logo from "../images/DDlogo.png";
 import Avatar from "react-avatar";
 import { MdLightMode } from "react-icons/md";
 import { BsGridFill } from "react-icons/bs";
+
 import { api_base_url, toggleClass } from "../helper";
 
-const Navbar = () => {
+const Navbar = ({ isGridLayout, setisGridLayout }) => {
   const [data, setData] = useState(null);
   const [error, setError] = useState("");
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetch(api_base_url + "/getUserDetails", {
@@ -31,6 +34,13 @@ const Navbar = () => {
       });
   }, []);
 
+  const logout = () => {
+    localStorage.removeItem("userId");
+    localStorage.removeItem("token");
+    localStorage.removeItem("isLoggedIn");
+    navigate("/login"); // 👈 Redirects to login page after logout
+  };
+
   return (
     <>
       <div className="navbar flex  items-center justify-between px-[100px] h-[70px] bg-[#482A81] ">
@@ -42,10 +52,16 @@ const Navbar = () => {
           />
         </div>
         <div className="links flex items-center gap-7">
-          <Link>Home</Link>
-          <Link>About</Link>
-          <Link>Contact</Link>
-          <Link>Services</Link>
+          <Link to="/">Home</Link>
+          <Link to="/about">About</Link>
+          <Link to="/contact">Contact</Link>
+          <Link to="/services">Services</Link>
+          <button
+            onClick={logout}
+            className="btnRed !bg-red-500 min-w-[100px] ml-2 hover:!bg-red-600"
+          >
+            Logout
+          </button>
           <Avatar
             onClick={() => {
               toggleClass(".dropDownNavbar", "hidden");
@@ -59,7 +75,7 @@ const Navbar = () => {
         <div className="dropDownNavbar hidden absolute right-[60px] top-[70px] rounded-lg  p-[10px] shadow-lg shadow-black/50  bg-[#482A81] w-[150px] h-[145px]">
           <div className="py-[10px] border-b-[1px] border-b-[#fff]">
             <h3 className="text-[17px] line-clamp-2" style={{ lineHeight: 1 }}>
-              Jeeban Behera
+              {data ? data.name : ""}
             </h3>
           </div>
           <i
@@ -70,11 +86,14 @@ const Navbar = () => {
             Light Mode
           </i>
           <i
+            onClick={() => {
+              setisGridLayout(!isGridLayout);
+            }}
             className="flex items-center gap-2 mt-3 mb2"
             style={{ fontStyle: "normal" }}
           >
-            <BsGridFill className="text-[22px]" />
-            Grid Layout
+            <BsGridFill className="text-[22px] cursor-pointer" />
+            {isGridLayout ? "List " : "Grid"} Layout
           </i>
         </div>
       </div>

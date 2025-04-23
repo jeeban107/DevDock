@@ -4,6 +4,10 @@ import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import image from "../images/SImg.png";
 import { api_base_url } from "../helper";
+import Footer from "../components/Footer";
+import SubSection from "../components/SubSection";
+import EditorNavbar from "../components/Navbar";
+import Homebar from "../components/Homebar";
 
 const SignUp = () => {
   const [username, setUsername] = useState("");
@@ -43,16 +47,24 @@ const SignUp = () => {
 
   return (
     <>
-      <div className="container w-screen min-h-screen flex items-center justify-between pl-[100px] ">
-        <div className="left w-[35%]">
-          <img className="w-[200px]" src={logo} alt="" />
-          <form onSubmit={submitForm} className="w-full mt-[50px]" action="">
+      <Homebar></Homebar>
+      <div className="container w-screen min-h-screen pt-[100px] flex items-center justify-between pl-[100px] pr-[50px] pb-[40px]">
+        {/* LEFT SECTION */}
+        <div className="left w-[35%] ">
+          <h1 className="text-3xl font-bold mb-4 leading-tight">
+            Welcome to <span className="text-[#7E4BDE]">DevDock</span>
+          </h1>
+          <p className="text-[14px] text-[#dde2fa] mb-6">
+            Your ultimate collaborative code editor. Create, code, and
+            collaborate in real-time — whether you're building projects,
+            debugging code, or just learning!
+          </p>
+
+          <form onSubmit={submitForm} className="w-full" action="">
             <div className="inputBox">
               <input
                 required
-                onChange={(e) => {
-                  setUsername(e.target.value);
-                }}
+                onChange={(e) => setUsername(e.target.value)}
                 value={username}
                 type="text"
                 placeholder="UserName"
@@ -60,9 +72,7 @@ const SignUp = () => {
             </div>
             <div className="inputBox">
               <input
-                onChange={(e) => {
-                  setName(e.target.value);
-                }}
+                onChange={(e) => setName(e.target.value)}
                 value={name}
                 type="text"
                 placeholder="Name"
@@ -71,9 +81,7 @@ const SignUp = () => {
             <div className="inputBox">
               <input
                 required
-                onChange={(e) => {
-                  setEmail(e.target.value);
-                }}
+                onChange={(e) => setEmail(e.target.value)}
                 value={email}
                 type="email"
                 placeholder="Email"
@@ -82,30 +90,35 @@ const SignUp = () => {
             <div className="inputBox">
               <input
                 required
-                onChange={(e) => {
-                  setPwd(e.target.value);
-                }}
+                onChange={(e) => setPwd(e.target.value)}
                 value={pwd}
                 type="password"
                 placeholder="Password"
               />
             </div>
             <p className="text-[grey]">
-              Already have an account{"  "}
+              Already have an account{" "}
               <Link to="/login" className="text-[#7E4BDE]">
                 login
-              </Link>{" "}
+              </Link>
             </p>
-
             <p className="text-red-500 text-[14px] my-2">{error}</p>
-
-            <button className="btnBlue w-full mt-[20px] ">Sign Up</button>
+            <button className="btnBlue w-full mt-[20px]">Sign Up</button>
           </form>
         </div>
-        <div className="right  w-[50%]">
-          <img src={image} alt="" className="h-[90vh]  object-cover " />
+
+        {/* RIGHT SECTION */}
+        <div className="right w-[50%]">
+          <img
+            src={image}
+            alt="Signup Illustration"
+            className="h-[90vh] object-cover rounded-xl shadow-lg"
+          />
         </div>
       </div>
+
+      <SubSection />
+      <Footer></Footer>
     </>
   );
 };

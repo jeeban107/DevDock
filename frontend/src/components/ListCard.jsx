@@ -45,7 +45,7 @@ const ListCard = ({ item }) => {
           <img className="w-[80px] " src={image} alt="" />
           <div>
             <h3 className="text-[20px] ">{item.title} </h3>
-            <p className="text-[grey]  text-[14px]">
+            <p className="text-[grey]  text-[13px]">
               Created in {new Date(item.date).toDateString()}
             </p>
           </div>

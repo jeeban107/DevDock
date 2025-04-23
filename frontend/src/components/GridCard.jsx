@@ -45,7 +45,7 @@ const GridCard = ({ item }) => {
           <h3 className="text-[20px] w-[90%] line-clamp-1">{item.title}</h3>
         </div>
         <div className="flex items-center justify-between text-center">
-          <p className="text-[13px] text-[grey]">
+          <p className="text-[12px] text-[grey]">
             Created in {new Date(item.date).toDateString()}
           </p>
           <img
