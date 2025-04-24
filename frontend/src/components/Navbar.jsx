@@ -4,111 +4,122 @@ import logo from "../images/DDlogo.png";
 import Avatar from "react-avatar";
 import { MdLightMode } from "react-icons/md";
 import { BsGridFill } from "react-icons/bs";
-
+import { HiMenuAlt3, HiX } from "react-icons/hi";
 import { api_base_url, toggleClass } from "../helper";
 
 const Navbar = ({ isGridLayout, setisGridLayout }) => {
   const [data, setData] = useState(null);
-  const [error, setError] = useState("");
-
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     fetch(api_base_url + "/getUserDetails", {
-      mode: "cors",
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        userId: localStorage.getItem("userId"),
-      }),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId: localStorage.getItem("userId") }),
     })
       .then((res) => res.json())
-      .then((data) => {
-        if (data.success) {
-          setData(data.user);
-        } else {
-          setError(data.message);
-        }
-      });
+      .then((data) =>
+        data.success ? setData(data.user) : console.error(data.message)
+      );
   }, []);
 
   const logout = () => {
-    localStorage.removeItem("userId");
-    localStorage.removeItem("token");
-    localStorage.removeItem("isLoggedIn");
-    navigate("/login"); // 👈 Redirects to login page after logout
+    localStorage.clear();
+    navigate("/login");
   };
 
   return (
-    <>
-      <div className="navbar flex  items-center justify-between px-[100px] h-[70px] bg-[#1e1f38] ">
-        <div className="logo">
-          <img
-            className="pl-[10px] w-[160px] cursor-pointer"
-            src={logo}
-            alt=""
-          />
-        </div>
-        <div className="links flex items-center gap-7">
-          <Link className="hover:text-[#7E4BDE] transition duration-200" to="/">
+    <div className="navbar flex items-center justify-between px-4 md:px-[100px] h-[70px] bg-[#1e1f38] relative">
+      <div className="logo">
+        <img className="w-[140px] cursor-pointer" src={logo} alt="logo" />
+      </div>
+
+      {/* Desktop Links */}
+      <div className="hidden md:flex items-center gap-7 text-white">
+        <Link to="/">Home</Link>
+        <Link to="/about">About</Link>
+        <Link to="/service">Services</Link>
+        <button
+          onClick={logout}
+          className="btnRed !bg-red-500 min-w-[100px] ml-2 hover:!bg-red-600"
+        >
+          Logout
+        </button>
+        <Avatar
+          onClick={() => toggleClass(".dropDownNavbar", "hidden")}
+          name={data?.name || ""}
+          size="40"
+          round
+          className="cursor-pointer ml-2"
+        />
+      </div>
+
+      {/* Hamburger Icon */}
+      <div className="md:hidden text-white">
+        <button onClick={() => setIsMenuOpen(!isMenuOpen)}>
+          {isMenuOpen ? (
+            <HiX className="text-3xl" />
+          ) : (
+            <HiMenuAlt3 className="text-3xl" />
+          )}
+        </button>
+      </div>
+
+      {/* Mobile Menu */}
+      {isMenuOpen && (
+        <div className="absolute top-[70px] left-0 w-full bg-[#1e1f38] p-5 flex flex-col gap-4 z-50 md:hidden text-white">
+          <Link to="/" onClick={() => setIsMenuOpen(false)}>
             Home
           </Link>
-          <Link
-            className="hover:text-[#7E4BDE] transition duration-200"
-            to="/about"
-          >
+          <Link to="/about" onClick={() => setIsMenuOpen(false)}>
             About
           </Link>
-          <Link
-            className="hover:text-[#7E4BDE] transition duration-200"
-            to="/service"
-          >
+          <Link to="/service" onClick={() => setIsMenuOpen(false)}>
             Services
           </Link>
           <button
             onClick={logout}
-            className="btnRed !bg-red-500 min-w-[100px] ml-2 hover:!bg-red-600"
+            className="btnRed !bg-red-500 min-w-[100px] hover:!bg-red-600"
           >
             Logout
           </button>
-          <Avatar
-            onClick={() => {
-              toggleClass(".dropDownNavbar", "hidden");
-            }}
-            name={data ? data.name : ""}
-            size="40"
-            round="50%"
-            className="cursor-pointer ml-2"
-          />
-        </div>
-        <div className="dropDownNavbar hidden absolute right-[60px] top-[70px] rounded-lg  p-[10px] shadow-lg shadow-black/50  bg-[#482A81] w-[150px] h-[145px]">
-          <div className="py-[10px] border-b-[1px] border-b-[#fff]">
-            <h3 className="text-[17px] line-clamp-2" style={{ lineHeight: 1 }}>
-              {data ? data.name : ""}
-            </h3>
+          <div className="flex items-center gap-2 mt-2">
+            <Avatar name={data?.name || ""} size="40" round />
+            <span>{data?.name}</span>
           </div>
-          <i
-            className="flex items-center gap-2 mt-3 mb2"
-            style={{ fontStyle: "normal" }}
-          >
+          <div className="flex items-center gap-2 mt-2">
             <MdLightMode className="text-[22px]" />
-            Light Mode
-          </i>
-          <i
-            onClick={() => {
-              setisGridLayout(!isGridLayout);
-            }}
-            className="flex items-center gap-2 mt-3 mb2"
-            style={{ fontStyle: "normal" }}
+            <span>Light Mode</span>
+          </div>
+          <div
+            onClick={() => setisGridLayout(!isGridLayout)}
+            className="flex items-center gap-2 mt-2 cursor-pointer"
           >
-            <BsGridFill className="text-[22px] cursor-pointer" />
-            {isGridLayout ? "List " : "Grid"} Layout
-          </i>
+            <BsGridFill className="text-[22px]" />
+            <span>{isGridLayout ? "List" : "Grid"} Layout</span>
+          </div>
+        </div>
+      )}
+
+      {/* Dropdown Menu (Desktop only) */}
+      <div className="dropDownNavbar hidden absolute right-[20px] top-[70px] rounded-lg p-[10px] shadow-lg bg-[#482A81] w-[150px] h-[145px] z-50 text-white">
+        <div className="py-[10px] border-b border-white">
+          <h3 className="text-[17px] line-clamp-2">{data?.name || ""}</h3>
+        </div>
+        <div className="flex items-center gap-2 mt-3">
+          <MdLightMode className="text-[22px]" />
+          <span>Light Mode</span>
+        </div>
+        <div
+          onClick={() => setisGridLayout(!isGridLayout)}
+          className="flex items-center gap-2 mt-3 cursor-pointer"
+        >
+          <BsGridFill className="text-[22px]" />
+          <span>{isGridLayout ? "List" : "Grid"} Layout</span>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

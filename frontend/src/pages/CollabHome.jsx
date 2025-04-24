@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 import abLogo from "../images/DDLogo.png";
-import bgImage from "../images/bg.png";
 
 const CollabHome = () => {
   const [roomId, setRoomId] = useState("");
@@ -23,17 +22,28 @@ const CollabHome = () => {
   };
 
   return (
-    <div
-      className="min-h-screen flex items-center justify-center px-4"
-      style={{
-        backgroundImage: `url(${bgImage})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
-      }}
-    >
-      <div className="absolute inset-0 bg-black opacity-40 z-0"></div>
-      <div className="collabcard p-8 rounded-xl shadow-lg w-full max-w-sm text-white">
+    <div className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden">
+      {/* Background Video */}
+      <video
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="metadata"
+        poster="https://st3.depositphotos.com/4278403/18204/v/600/depositphotos_182047466-stock-video-technology-purple-background-binary-code.jpg"
+        className="absolute inset-0 w-full h-full object-cover z-0"
+      >
+        <source
+          src="https://st3.depositphotos.com/4278403/18204/v/600/depositphotos_182047466-stock-video-technology-purple-background-binary-code.mp4"
+          type="video/mp4"
+        />
+      </video>
+
+      {/* Dark overlay */}
+      <div className="absolute inset-0 bg-black opacity-40 z-10" />
+
+      {/* Foreground card */}
+      <div className="collabcard p-8 rounded-xl shadow-lg w-full max-w-sm text-white z-20 backdrop-blur-md bg-white/10 border border-white/20">
         <div className="flex items-center justify-left mb-6">
           <img src={abLogo} alt="Logo" className="h-10 mr-2" />
         </div>
@@ -58,7 +68,7 @@ const CollabHome = () => {
         >
           Join
         </button>
-        <p className="text-sm text-center mt-4 text-gray-400">
+        <p className="text-sm text-center mt-4 text-gray-300">
           If you don’t have an invite then{" "}
           <span
             onClick={createNewRoom}

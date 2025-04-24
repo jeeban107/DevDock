@@ -21,6 +21,9 @@ const io = new Server(server, {
 // Track users per room
 const roomUsers = {}; // { roomId: [ { username, socketId }, ... ] }
 
+// Track current language per room
+const roomLanguages = {}; // { roomId: "language" }
+
 // Maximum users per room
 const MAX_USERS_PER_ROOM = 4;
 
@@ -37,6 +40,21 @@ io.on("connection", (socket) => {
       return;
     }
 
+    // Check if the same username already exists in the room (prevent duplicate usernames)
+    if (
+      roomUsers[roomId] &&
+      roomUsers[roomId].some((user) => user.username === username)
+    ) {
+      // Append a number to make the username unique
+      let counter = 1;
+      let newUsername = `${username}_${counter}`;
+      while (roomUsers[roomId].some((user) => user.username === newUsername)) {
+        counter++;
+        newUsername = `${username}_${counter}`;
+      }
+      username = newUsername;
+    }
+
     // Check if room exists and is not full
     if (roomUsers[roomId] && roomUsers[roomId].length >= MAX_USERS_PER_ROOM) {
       // Room is full - reject the connection
@@ -47,9 +65,14 @@ io.on("connection", (socket) => {
     // Join the room
     socket.join(roomId);
 
+    // Store the roomId in the socket for disconnect handling
+    socket.roomId = roomId;
+    socket.username = username;
+
     // Initialize room if it doesn't exist
     if (!roomUsers[roomId]) {
       roomUsers[roomId] = [];
+      roomLanguages[roomId] = "javascript"; // Default language
     }
 
     // Add user to the room
@@ -70,6 +93,11 @@ io.on("connection", (socket) => {
       user: "System",
       msg: `${username} has joined the room.`,
     });
+
+    // Send current language to the new user
+    if (roomLanguages[roomId]) {
+      socket.emit("language-change", roomLanguages[roomId]);
+    }
   });
 
   socket.on("code-change", ({ roomId, code }) => {
@@ -80,26 +108,51 @@ io.on("connection", (socket) => {
     socket.to(roomId).emit("receive-chat", { user, msg });
   });
 
+  // New handler for language changes
+  socket.on("language-change", ({ roomId, language }) => {
+    // Update room language
+    roomLanguages[roomId] = language;
+
+    // Broadcast language change to all other users in the room
+    socket.to(roomId).emit("language-change", language);
+  });
+
   socket.on("leave-room", ({ roomId, username }) => {
+    console.log(`User ${username} (${socket.id}) leaving room ${roomId}`);
     handleUserLeaving(socket.id, roomId, username);
   });
 
   socket.on("disconnect", () => {
     console.log("User disconnected:", socket.id);
 
-    // Find all rooms this user was in and handle their departure
-    for (const roomId in roomUsers) {
-      const user = roomUsers[roomId].find(
-        (user) => user.socketId === socket.id
+    // Use stored roomId and username from the socket if available
+    if (socket.roomId && socket.username) {
+      console.log(
+        `User ${socket.username} disconnected from room ${socket.roomId}`
       );
-      if (user) {
-        handleUserLeaving(socket.id, roomId, user.username);
+      handleUserLeaving(socket.id, socket.roomId, socket.username);
+    } else {
+      // Previous approach as fallback
+      for (const roomId in roomUsers) {
+        const user = roomUsers[roomId].find(
+          (user) => user.socketId === socket.id
+        );
+        if (user) {
+          console.log(
+            `Found disconnected user ${user.username} in room ${roomId}`
+          );
+          handleUserLeaving(socket.id, roomId, user.username);
+        }
       }
     }
   });
 
   // Helper function to handle user leaving events
   function handleUserLeaving(socketId, roomId, username) {
+    console.log(
+      `Processing user leaving: ${username} (${socketId}) from room ${roomId}`
+    );
+
     if (roomUsers[roomId]) {
       // Remove user from room users list
       const updatedUsers = roomUsers[roomId].filter(
@@ -109,15 +162,28 @@ io.on("connection", (socket) => {
       // Update room users list
       roomUsers[roomId] = updatedUsers;
 
-      // If room is empty, delete it
+      // If room is empty, delete it and its language setting
       if (updatedUsers.length === 0) {
         delete roomUsers[roomId];
+        delete roomLanguages[roomId];
         console.log(`Room ${roomId} deleted (empty)`);
       } else {
         // Notify remaining users about the user who left
+        console.log(
+          `Broadcasting user-left event for ${username} to room ${roomId}`
+        );
         io.to(roomId).emit("user-left", { username });
         io.to(roomId).emit("user-list", updatedUsers);
-        console.log(`${username} left room ${roomId}`);
+        console.log(
+          `${username} left room ${roomId}. ${updatedUsers.length} users remain.`
+        );
+      }
+
+      // Make sure the socket leaves the room
+      const socketObj = io.sockets.sockets.get(socketId);
+      if (socketObj) {
+        socketObj.leave(roomId);
+        console.log(`Socket ${socketId} left room ${roomId}`);
       }
     }
   }

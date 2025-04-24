@@ -25,6 +25,7 @@ const CollabEditor = () => {
   const editorRef = useRef(null);
   const codeRef = useRef(code); // Reference to track current code state
   const hasJoinedRef = useRef(false); // Track if we've already joined
+  const languageRef = useRef(language); // Track current language state
 
   // Initialize socket connection
   useEffect(() => {
@@ -54,6 +55,7 @@ const CollabEditor = () => {
 
       // Listen for the user list
       socket.on("user-list", (allUsers) => {
+        console.log("Received user list:", allUsers);
         setUsers(allUsers);
       });
 
@@ -67,6 +69,7 @@ const CollabEditor = () => {
 
       // Listen for user left
       socket.on("user-left", ({ username }) => {
+        console.log("User left event:", username);
         setChatLog((prev) => [
           ...prev,
           { user: "System", msg: `${username} has left the room.` },
@@ -94,6 +97,14 @@ const CollabEditor = () => {
           }
         }
       });
+
+      // Listen for language changes from others
+      socket.on("language-change", (newLanguage) => {
+        if (newLanguage !== languageRef.current) {
+          languageRef.current = newLanguage;
+          setLanguage(newLanguage);
+        }
+      });
     };
 
     setupSocket();
@@ -104,26 +115,50 @@ const CollabEditor = () => {
       hasJoinedRef.current = true;
     }
 
-    // Cleanup function
+    // Cleanup function for component unmounting
     return () => {
+      console.log("Component unmounting, cleaning up");
       socket.off("user-list");
       socket.off("receive-chat");
       socket.off("receive-code");
       socket.off("room-full");
       socket.off("user-left");
+      socket.off("language-change");
 
       // Leave room when unmounting
       if (socket.connected) {
+        console.log(`Leaving room on unmount: ${roomId}, ${username}`);
         socket.emit("leave-room", { roomId, username });
         hasJoinedRef.current = false;
       }
     };
   }, [roomId, username, navigate]);
 
+  // Handle beforeunload event to ensure proper cleanup when page is closed/refreshed
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      console.log("Window unloading, leaving room");
+      if (socket && socket.connected) {
+        socket.emit("leave-room", { roomId, username });
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [roomId, username]);
+
   // Update codeRef when code state changes
   useEffect(() => {
     codeRef.current = code;
   }, [code]);
+
+  // Update languageRef when language state changes
+  useEffect(() => {
+    languageRef.current = language;
+  }, [language]);
 
   const handleEditorChange = (value) => {
     if (value !== code) {
@@ -151,12 +186,30 @@ const CollabEditor = () => {
     alert("Room ID copied to clipboard!");
   };
 
+  const handleLanguageChange = (e) => {
+    const newLanguage = e.target.value;
+    setLanguage(newLanguage);
+
+    // Emit language change to all users in the room
+    if (socket && socket.connected) {
+      socket.emit("language-change", { roomId, language: newLanguage });
+    }
+  };
+
   const handleLeave = () => {
     if (socket && socket.connected) {
+      console.log(`Leaving room on button click: ${roomId}, ${username}`);
       socket.emit("leave-room", { roomId, username });
       hasJoinedRef.current = false;
     }
+
+    // Navigate back to home page
     navigate("/");
+
+    // Add a slight delay before reloading to ensure navigation completes
+    setTimeout(() => {
+      window.location.reload();
+    }, 100);
   };
 
   return (
@@ -171,7 +224,7 @@ const CollabEditor = () => {
             </div>
             <select
               value={language}
-              onChange={(e) => setLanguage(e.target.value)}
+              onChange={handleLanguageChange}
               className="bg-[#2D2F47] text-sm text-white p-2 rounded focus:outline-none"
             >
               <option value="javascript">JavaScript</option>
