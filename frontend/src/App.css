@@ -175,3 +175,28 @@ html {
 .custom-scroll::-webkit-scrollbar-track {
   background: #1e1f38;
 }
+
+.collabcard {
+  background: rgba(255, 255, 255, 0.1); /* translucent */
+  border-radius: 1rem;
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.glass-input {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  color: white;
+  width: 100%;
+  outline: none;
+  transition: border 0.3s ease;
+}
+
+.glass-input:focus {
+  border: 1px solid #a37ff1;
+  background: rgba(255, 255, 255, 0.1);
+}

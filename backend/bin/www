@@ -1,86 +1,157 @@
 #!/usr/bin/env node
 
-/**
- * Module dependencies.
- */
+const app = require("../app");
+const debug = require("debug")("backend:server");
+const http = require("http");
+const { Server } = require("socket.io");
 
-var app = require("../app");
-var debug = require("debug")("backend:server");
-var http = require("http");
-
-/**
- * Get port from environment and store in Express.
- */
-
-var port = normalizePort(process.env.PORT || "3000");
+const port = normalizePort(process.env.PORT || "3000");
 app.set("port", port);
 
-/**
- * Create HTTP server.
- */
+const server = http.createServer(app);
 
-var server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST"],
+    credentials: true,
+  },
+});
 
-/**
- * Listen on provided port, on all network interfaces.
- */
+// Track users per room
+const roomUsers = {}; // { roomId: [ { username, socketId }, ... ] }
+
+// Maximum users per room
+const MAX_USERS_PER_ROOM = 4;
+
+io.on("connection", (socket) => {
+  console.log("User connected:", socket.id);
+
+  socket.on("join-room", ({ roomId, username }) => {
+    // Check if user is already in the room (prevents duplicates)
+    if (
+      roomUsers[roomId] &&
+      roomUsers[roomId].some((user) => user.socketId === socket.id)
+    ) {
+      console.log(`${username} already in room ${roomId}, skipping join`);
+      return;
+    }
+
+    // Check if room exists and is not full
+    if (roomUsers[roomId] && roomUsers[roomId].length >= MAX_USERS_PER_ROOM) {
+      // Room is full - reject the connection
+      socket.emit("room-full");
+      return;
+    }
+
+    // Join the room
+    socket.join(roomId);
+
+    // Initialize room if it doesn't exist
+    if (!roomUsers[roomId]) {
+      roomUsers[roomId] = [];
+    }
+
+    // Add user to the room
+    roomUsers[roomId].push({ username, socketId: socket.id });
+
+    console.log(
+      `${username} joined room ${roomId} (${roomUsers[roomId].length}/${MAX_USERS_PER_ROOM})`
+    );
+
+    // Notify all users in the room about the updated user list
+    io.to(roomId).emit("user-list", roomUsers[roomId]);
+
+    // Notify others that a new user joined
+    socket.to(roomId).emit("user-joined", { username, socketId: socket.id });
+
+    // Send system message about join
+    socket.to(roomId).emit("receive-chat", {
+      user: "System",
+      msg: `${username} has joined the room.`,
+    });
+  });
+
+  socket.on("code-change", ({ roomId, code }) => {
+    socket.to(roomId).emit("receive-code", code);
+  });
+
+  socket.on("send-chat", ({ roomId, user, msg }) => {
+    socket.to(roomId).emit("receive-chat", { user, msg });
+  });
+
+  socket.on("leave-room", ({ roomId, username }) => {
+    handleUserLeaving(socket.id, roomId, username);
+  });
+
+  socket.on("disconnect", () => {
+    console.log("User disconnected:", socket.id);
+
+    // Find all rooms this user was in and handle their departure
+    for (const roomId in roomUsers) {
+      const user = roomUsers[roomId].find(
+        (user) => user.socketId === socket.id
+      );
+      if (user) {
+        handleUserLeaving(socket.id, roomId, user.username);
+      }
+    }
+  });
+
+  // Helper function to handle user leaving events
+  function handleUserLeaving(socketId, roomId, username) {
+    if (roomUsers[roomId]) {
+      // Remove user from room users list
+      const updatedUsers = roomUsers[roomId].filter(
+        (user) => user.socketId !== socketId
+      );
+
+      // Update room users list
+      roomUsers[roomId] = updatedUsers;
+
+      // If room is empty, delete it
+      if (updatedUsers.length === 0) {
+        delete roomUsers[roomId];
+        console.log(`Room ${roomId} deleted (empty)`);
+      } else {
+        // Notify remaining users about the user who left
+        io.to(roomId).emit("user-left", { username });
+        io.to(roomId).emit("user-list", updatedUsers);
+        console.log(`${username} left room ${roomId}`);
+      }
+    }
+  }
+});
 
 server.listen(port);
 server.on("error", onError);
 server.on("listening", onListening);
 
-/**
- * Normalize a port into a number, string, or false.
- */
-
 function normalizePort(val) {
-  var port = parseInt(val, 10);
-
-  if (isNaN(port)) {
-    // named pipe
-    return val;
-  }
-
-  if (port >= 0) {
-    // port number
-    return port;
-  }
-
+  const port = parseInt(val, 10);
+  if (isNaN(port)) return val;
+  if (port >= 0) return port;
   return false;
 }
 
-/**
- * Event listener for HTTP server "error" event.
- */
-
 function onError(error) {
-  if (error.syscall !== "listen") {
-    throw error;
-  }
+  if (error.syscall !== "listen") throw error;
 
-  var bind = typeof port === "string" ? "Pipe " + port : "Port " + port;
-
-  // handle specific listen errors with friendly messages
+  const bind = typeof port === "string" ? "Pipe " + port : "Port " + port;
   switch (error.code) {
     case "EACCES":
       console.error(bind + " requires elevated privileges");
       process.exit(1);
-      break;
     case "EADDRINUSE":
       console.error(bind + " is already in use");
       process.exit(1);
-      break;
     default:
       throw error;
   }
 }
 
-/**
- * Event listener for HTTP server "listening" event.
- */
-
 function onListening() {
-  var addr = server.address();
-  var bind = typeof addr === "string" ? "pipe " + addr : "port " + addr.port;
+  const addr = server.address();
+  const bind = typeof addr === "string" ? "pipe " + addr : "port " + addr.port;
   debug("Listening on " + bind);
 }

@@ -116,8 +116,6 @@ const SignUp = () => {
           />
         </div>
       </div>
-
-      <SubSection />
       <Footer></Footer>
     </>
   );

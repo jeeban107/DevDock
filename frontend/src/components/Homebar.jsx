@@ -19,7 +19,7 @@ const Homebar = () => {
           About
         </Link>
         <Link
-          to="/services"
+          to="/service"
           className="text-white hover:text-[#7E4BDE] transition duration-200"
         >
           Services

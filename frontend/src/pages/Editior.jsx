@@ -31,11 +31,11 @@ int main() {
 
   const changeTheme = () => {
     if (isLightMode) {
-      document.querySelector(".EditorNavbar").style.background = "#482A81";
+      document.querySelector(".EditorNavbar").style.background = "#1e1f38";
       document.body.classList.remove("lightmode");
       setIsLightMode(false);
     } else {
-      document.querySelector(".EditorNavbar").style.background = "#482A81";
+      document.querySelector(".EditorNavbar").style.background = "#1e1f38";
       document.querySelector(".EditorNavbar").style.color = "#f4f4f4";
       document.body.classList.add("lightmode");
       setIsLightMode(true);

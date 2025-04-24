@@ -43,7 +43,7 @@ const Navbar = ({ isGridLayout, setisGridLayout }) => {
 
   return (
     <>
-      <div className="navbar flex  items-center justify-between px-[100px] h-[70px] bg-[#482A81] ">
+      <div className="navbar flex  items-center justify-between px-[100px] h-[70px] bg-[#1e1f38] ">
         <div className="logo">
           <img
             className="pl-[10px] w-[160px] cursor-pointer"
@@ -52,10 +52,21 @@ const Navbar = ({ isGridLayout, setisGridLayout }) => {
           />
         </div>
         <div className="links flex items-center gap-7">
-          <Link to="/">Home</Link>
-          <Link to="/about">About</Link>
-          <Link to="/contact">Contact</Link>
-          <Link to="/services">Services</Link>
+          <Link className="hover:text-[#7E4BDE] transition duration-200" to="/">
+            Home
+          </Link>
+          <Link
+            className="hover:text-[#7E4BDE] transition duration-200"
+            to="/about"
+          >
+            About
+          </Link>
+          <Link
+            className="hover:text-[#7E4BDE] transition duration-200"
+            to="/service"
+          >
+            Services
+          </Link>
           <button
             onClick={logout}
             className="btnRed !bg-red-500 min-w-[100px] ml-2 hover:!bg-red-600"
