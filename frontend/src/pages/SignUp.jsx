@@ -48,7 +48,7 @@ const SignUp = () => {
           <img
             src={image}
             alt="Signup Illustration"
-            className="w-full h-[300px] sm:h-[400px] md:h-[500px] lg:h-[90vh] object-contain rounded-xl shadow-lg"
+            className="w-full h-[300px] sm:h-[400px] md:h-[500px] lg:h-[90vh] object-contain rounded-xl "
           />
         </div>
 

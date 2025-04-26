@@ -83,13 +83,15 @@ const Home = () => {
     <>
       <Navbar isGridLayout={isGridLayout} setisGridLayout={setisGridLayout} />
       <div className="flex flex-col md:flex-row items-center justify-between px-4 md:px-[120px] my-[40px] gap-4">
-        <h2 className="text-2xl md:text-3xl">Hi, biki3 👋</h2>
+        <h2 className="text-2xl md:text-3xl">
+          Hi, {userdata ? userdata.username : "Loading..."} 👋
+        </h2>
 
         <div className="flex items-center justify-between gap-2 w-full sm:w-auto md:w-fit">
           <div className="inputBox  w-full sm:w-[300px] !mb-0">
             <input
               type="text"
-              placeholder="Search Here 🔍"
+              placeholder="Search Here                         🔍"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />

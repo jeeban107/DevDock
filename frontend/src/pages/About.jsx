@@ -9,6 +9,12 @@ import {
 } from "react-icons/fa";
 import abLogo from "../images/AboutLogo.png";
 
+// Import developer images
+import bickyImg from "../images/bicky.jpg";
+import jyotiImg from "../images/jyoti.jpg";
+import jeebanImg from "../images/jeeban jyoti.jpg";
+import dpImg from "../images/dp.jpg";
+
 const features = [
   {
     icon: <FaRocket className="text-[#7E4BDE] text-2xl" />,
@@ -33,10 +39,10 @@ const features = [
 ];
 
 const developers = [
-  { name: "Jeeban Behera", image: "https://via.placeholder.com/100" },
-  { name: "Jyoti RA", image: "https://via.placeholder.com/100" },
-  { name: "Person 3", image: "https://via.placeholder.com/100" },
-  { name: "Person 4", image: "https://via.placeholder.com/100" },
+  { name: "Jeeban Behera", image: dpImg, role: "Full Stack Developer" },
+  { name: "Jeeban Jyoti  Sahoo", image: jeebanImg, role: "Frontend Developer" },
+  { name: "Jyoti Ranjan Swain", image: jyotiImg, role: "Backend Developer" },
+  { name: "Jyoti Bikash Patra", image: bickyImg, role: "UI/UX Designer" },
 ];
 
 const About = () => {

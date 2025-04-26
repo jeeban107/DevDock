@@ -37,9 +37,24 @@ const Navbar = ({ isGridLayout, setisGridLayout }) => {
 
       {/* Desktop Links */}
       <div className="hidden md:flex items-center gap-7 text-white">
-        <Link to="/">Home</Link>
-        <Link to="/about">About</Link>
-        <Link to="/service">Services</Link>
+        <Link
+          className="text-white hover:text-[#7E4BDE] transition duration-200"
+          to="/"
+        >
+          Home
+        </Link>
+        <Link
+          className="text-white hover:text-[#7E4BDE] transition duration-200"
+          to="/about"
+        >
+          About
+        </Link>
+        <Link
+          className="text-white hover:text-[#7E4BDE] transition duration-200"
+          to="/service"
+        >
+          Services
+        </Link>
         <button
           onClick={logout}
           className="btnRed !bg-red-500 min-w-[100px] ml-2 hover:!bg-red-600"

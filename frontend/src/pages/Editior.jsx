@@ -13,7 +13,7 @@ const Editior = () => {
   const [isLightMode, setIsLightMode] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const [htmlCode, setHtmlCode] = useState("<h1>Hello World</h1>");
+  const [htmlCode, setHtmlCode] = useState("");
   const [cssCode, setCssCode] = useState("body { background-color: #f4f4f4; }");
   const [jsCode, setJsCode] = useState("// JavaScript code here");
   const [javaCode, setJavaCode] = useState(`public class Main {
@@ -167,21 +167,38 @@ int main() {
   return (
     <>
       <EditorNavbar isLightMode={isLightMode} />
-      <div className="flex">
-        <div className={`left ${isExpanded ? "w-full" : "w-1/2"}`}>
-          <div className="tabs flex items-center justify-between gap-2 w-full h-[60px] px-[40px]">
-            <div className="tabs flex items-center gap-2">
-              {["html", "css", "js", "java", "python", "c"].map((language) => (
-                <div
-                  key={language}
-                  onClick={() => setTab(language)}
-                  className="tab cursor-pointer p-[6px] bg-[#1a1a2e] px-[10px] text-[15px]"
+      <div className={`flex flex-col md:flex-row`}>
+        <div
+          className={`left ${
+            isExpanded ? "w-full" : "md:w-1/2 w-full"
+          } transition-all`}
+        >
+          <div className="tabs flex flex-wrap items-center justify-between gap-2 w-full h-[60px] px-4 md:px-[40px]">
+            <div className="overflow-x-auto max-w-full hide-scrollbar">
+              <div className="flex items-center gap-2 w-max">
+                {["html", "css", "js", "java", "python", "c"].map(
+                  (language) => (
+                    <div
+                      key={language}
+                      onClick={() => setTab(language)}
+                      className={`tab cursor-pointer p-[6px] px-[10px] text-[15px] ${
+                        tab === language ? "bg-[#3f3f5a]" : "bg-[#1a1a2e]"
+                      } text-white rounded whitespace-nowrap`}
+                    >
+                      {language.toUpperCase()}
+                    </div>
+                  )
+                )}
+                <button
+                  onClick={run}
+                  className="ml-2 px-4 py-[6px] bg-[#5E3E9B] hover:bg-[#6A4BAF] text-white text-sm rounded-md whitespace-nowrap"
                 >
-                  {language.toUpperCase()}
-                </div>
-              ))}
+                  Run
+                </button>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
+
+            <div className="flex items-center gap-2 mt-2 md:mt-0">
               <i className="cursor-pointer text-[20px]" onClick={changeTheme}>
                 <MdLightMode />
               </i>
@@ -238,10 +255,11 @@ int main() {
             }
           />
         </div>
+
         <iframe
           id="iframe"
           className={`min-h-[77vh] bg-[#fff] text-black transition-all duration-300 ${
-            isExpanded ? "w-0 hidden" : "w-1/2"
+            isExpanded ? "hidden" : "w-full md:w-1/2"
           }`}
         ></iframe>
       </div>
